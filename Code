@@ -7,8 +7,8 @@
 Adafruit_MPU6050 mpu;
 char auth[] = "-nRVaWlzQUpuYDHWSd4x_LsCrkPwUBFR";
 
-char ssid[] = "NETWERK";
-char pass[] = "WACHTWOORD";
+char ssid[] = "YourNetworkName";
+char pass[] = "YourPassword";
 
 void setup(void) {
   Blynk.begin(auth, ssid, pass);
@@ -16,18 +16,18 @@ void setup(void) {
   while (!Serial)
     delay(10);
 
-  Serial.println("MPU6050 test!");
+  Serial.println("Adafruit MPU6050 test!");
 
   if (!mpu.begin()) {
-    Serial.println("MPU6050 chip niet gevonden");
+    Serial.println("Failed to find MPU6050 chip");
     while (1) {
       delay(10);
     }
   }
-  Serial.println("MPU6050 chip gevonden!");
+  Serial.println("MPU6050 Found!");
 
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
-  Serial.print("Accelerometerbereik staat op: ");
+  Serial.print("Accelerometer range set to: ");
   switch (mpu.getAccelerometerRange()) {
   case MPU6050_RANGE_2_G:
     Serial.println("+-2G");
@@ -43,7 +43,7 @@ void setup(void) {
     break;
   }
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-  Serial.print("Gyro bereik staat op: ");
+  Serial.print("Gyro range set to: ");
   switch (mpu.getGyroRange()) {
   case MPU6050_RANGE_250_DEG:
     Serial.println("+- 250 deg/s");
@@ -60,7 +60,7 @@ void setup(void) {
   }
 
   mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);
-  Serial.print("Filter bandbreedte staat op: ");
+  Serial.print("Filter bandwidth set to: ");
   switch (mpu.getFilterBandwidth()) {
   case MPU6050_BAND_260_HZ:
     Serial.println("260 Hz");
@@ -90,11 +90,13 @@ void setup(void) {
 }
 
 void loop() {
+  float currentAcc = a.acceleration.x
+  int Acc = 0
   Blynk.run();
-  sensors_event_t a, g;
-  mpu.getEvent(&a, &g);
+  sensors_event_t a, g, temp;
+  mpu.getEvent(&a, &g, &temp);
 
-  Serial.print("Acceleratie X: ");
+  Serial.print("Acceleration X: ");
   Serial.print(a.acceleration.x);
   Serial.print(", Y: ");
   Serial.print(a.acceleration.y);
@@ -102,7 +104,7 @@ void loop() {
   Serial.print(a.acceleration.z);
   Serial.println(" m/s^2");
 
-  Serial.print("Rotatie X: ");
+  Serial.print("Rotation X: ");
   Serial.print(g.gyro.x);
   Serial.print(", Y: ");
   Serial.print(g.gyro.y);
@@ -112,4 +114,9 @@ void loop() {
 
   Serial.println("");
   delay(500);
+
+  if (currentAcc < Acc) {
+    Blynk.notify("Auto is in beweging");
+    delay(5000);
+  }
 }
